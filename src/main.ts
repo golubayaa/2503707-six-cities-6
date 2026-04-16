@@ -1,4 +1,8 @@
-import { run } from './cli/cli.js'; // <-- путь к cli.ts после компиляции
+import { runCLI as run } from './cli/cli.js'; // <-- путь к cli.ts после компиляции
 
-const args = process.argv.slice(2); // все аргументы после "node dist/main.js"
-run(args);
+const args = process.argv.slice(2);
+run(args).catch((error) => {
+  console.error('Ошибка:', error);
+  throw error;
+});
+
