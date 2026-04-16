@@ -99,6 +99,7 @@ export class ImportCommand implements Command {
       try {
         await this.databaseClient.disconnect();
       } catch {
+        //
       }
       throw error;
     }
