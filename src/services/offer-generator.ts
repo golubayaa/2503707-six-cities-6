@@ -1,5 +1,5 @@
 import { Offer } from '../types/offer.type.js';
-import { City } from '../types/city.type.js';
+import { City } from '../types/city,type.js';
 import { RandomGenerator } from '../utils/random-generator.js';
 
 export class OfferGenerator {
@@ -33,9 +33,6 @@ export class OfferGenerator {
     'Balcony',
   ];
 
-  /**
-   * Generate a single offer based on template
-   */
   public generateOffer(template: Offer): Offer {
     return {
       title: this.generateTitle(template.title),
@@ -59,9 +56,6 @@ export class OfferGenerator {
     };
   }
 
-  /**
-   * Generate multiple offers
-   */
   public generateOffers(templates: Offer[], count: number): Offer[] {
     const offers: Offer[] = [];
     for (let i = 0; i < count; i++) {
