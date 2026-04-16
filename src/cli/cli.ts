@@ -10,12 +10,12 @@ export const runCLI = async (args: string[]): Promise<void> => {
 
   const showHelp = () => {
     console.log(chalk.blue(`
-Доступные команды:
+      Доступные команды:
 
---help                              Показать список команд
---version                           Показать версию приложения
---import <file>                     Импортировать данные из TSV файла
---generate <n> <filepath> <url>     Сгенерировать тестовые данные
+      --help                              Показать список команд
+      --version                           Показать версию приложения
+      --import <file>                     Импортировать данные из TSV файла
+      --generate <n> <filepath> <url>     Сгенерировать тестовые данные
     `));
   };
 
@@ -80,7 +80,6 @@ export const runCLI = async (args: string[]): Promise<void> => {
 
   const generateData = async (count?: string, filePath?: string, url?: string): Promise<void> => {
     try {
-      // Validate arguments
       if (!count || !filePath || !url) {
         console.error(
           chalk.red('Использование: --generate <n: число> <filepath: строка> <url: строка>')
@@ -96,7 +95,6 @@ export const runCLI = async (args: string[]): Promise<void> => {
 
       console.log(chalk.yellow(`Получение данных с сервера ${url}...`));
 
-      // Fetch mock data
       const fetcher = new MockDataFetcher(url);
       const mockOffers = await fetcher.fetchOffers();
 
@@ -108,11 +106,9 @@ export const runCLI = async (args: string[]): Promise<void> => {
       console.log(chalk.cyan(`Получено ${mockOffers.length} шаблонов данных`));
       console.log(chalk.yellow(`Генерация ${numOffers} предложений...`));
 
-      // Generate offers
       const generator = new OfferGenerator();
       const offers = generator.generateOffers(mockOffers, numOffers);
 
-      // Write to file
       const resolvedPath = path.resolve(filePath);
       await TSVWriter.writeToFile(resolvedPath, offers);
 

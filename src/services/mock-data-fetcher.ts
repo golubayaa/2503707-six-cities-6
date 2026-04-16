@@ -1,18 +1,11 @@
 import { Offer } from '../types/offer.type.js';
 import got from 'got';
 
-/**
- * Service for fetching mock data from JSON server
- */
 export class MockDataFetcher {
   constructor(private readonly url: string) {}
 
-  /**
-   * Fetch all offers from the mock server
-   */
   public async fetchOffers(): Promise<Offer[]> {
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: any = await got(`${this.url}/offers`);
 
       let data;
@@ -22,7 +15,6 @@ export class MockDataFetcher {
         data = response.body || response;
       }
 
-      // Handle both direct array and {offers: array} formats
       if (Array.isArray(data)) {
         return data as Offer[];
       }
