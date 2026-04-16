@@ -28,7 +28,7 @@ export class ImportCommand implements Command {
     this.categoryService = new DefaultCategoryService(this.logger, CategoryModel);
     this.userService = new DefaultUserService(this.logger, UserModel);
     this.databaseClient = new MongoDatabaseClient(this.logger);
-    this.salt = "abc"
+    this.salt = 'abc';
   }
 
   private async onImportedLine(line: string, resolve: () => void) {
