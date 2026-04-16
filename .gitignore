@@ -3,9 +3,12 @@
 /build/
 /lib/
 /dist/
+/generated/
+*.tsv
 /docs/
 .idea/*
 
 .DS_Store
 coverage
 *.log
+.env
