@@ -1,10 +1,7 @@
 import { Offer } from '../types/offer.type.js';
-import { City } from "../types/City.type.js";
+import { City } from '../types/city.type.js';
 import { RandomGenerator } from '../utils/random-generator.js';
 
-/**
- * Service for generating random offer data based on mock templates
- */
 export class OfferGenerator {
   private readonly cities: City[] = [
     'Paris',
