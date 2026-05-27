@@ -7,10 +7,11 @@ import { OfferEntity } from './offer.entity.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import { UpdateOfferDto } from './dto/update-offer.dto.js';
 import { DEFAULT_OFFER_COUNT } from './offer.constant.js';
+import { DocumentExistsService } from '../../middlewares/document-exists.middleware.js';
 
 
 @injectable()
-export class DefaultOfferService implements OfferService {
+export class DefaultOfferService implements OfferService, DocumentExistsService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>

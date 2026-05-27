@@ -65,7 +65,7 @@ export class ImportCommand implements Command {
       isPremium: false,
       isFavorite: false,
       rating: 1,
-      postDate: offer.postDate,
+      postDate: offer.postDate.toISOString(),
       price: offer.price,
       type: offer.type,
       rooms: 1,

@@ -7,14 +7,20 @@ import { CreateCommentDto } from './dto/create-comment.dto.js';
 import { UpdateCommentDto } from './dto/update-comment.dto.js';
 import { Logger } from '../../libs/logger/index.js';
 import { OfferEntity } from '../offer/offer.entity.js';
+import { DocumentExistsService } from '../../middlewares/document-exists.middleware.js';
 
 @injectable()
-export class DefaultCommentService implements CommentService {
+export class DefaultCommentService implements CommentService, DocumentExistsService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.CommentModel) private readonly commentModel: types.ModelType<CommentEntity>,
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
   ) {}
+
+  async exists(documentId: string): Promise<boolean> {
+    const doc = await this.commentModel.findById(documentId).exec();
+    return doc !== null;
+  }
 
   public async create(dto: CreateCommentDto): Promise<DocumentType<CommentEntity>> {
     const comment = await this.commentModel.create(dto);

@@ -11,6 +11,7 @@ export type RestSchema = {
   DB_PASSWORD: string;
   DB_PORT: string;
   DB_NAME: string;
+  UPLOAD_PATH: string;
 }
 
 export const configRestSchema = convict<RestSchema>({
@@ -55,5 +56,11 @@ export const configRestSchema = convict<RestSchema>({
     format: String,
     env: 'DB_NAME',
     default: 'buy-and-sell'
+  },
+  UPLOAD_PATH: {
+    doc: 'Path to upload folder',
+    format: String,
+    env: 'UPLOAD_PATH',
+    default: 'uploads'
   },
 });

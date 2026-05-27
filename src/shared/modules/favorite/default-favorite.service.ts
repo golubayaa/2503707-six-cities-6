@@ -5,14 +5,20 @@ import { DocumentType, types } from '@typegoose/typegoose';
 import { FavoriteEntity } from './favorite.entity.js';
 import { Logger } from '../../libs/logger/index.js';
 import { OfferEntity } from '../offer/offer.entity.js';
+import { DocumentExistsService } from '../../middlewares/document-exists.middleware.js';
 
 @injectable()
-export class DefaultFavoriteService implements FavoriteService {
+export class DefaultFavoriteService implements FavoriteService, DocumentExistsService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.FavoriteModel) private readonly favoriteModel: types.ModelType<FavoriteEntity>,
     @inject(Component.OfferModel) private readonly offerModel: types.ModelType<OfferEntity>
   ) {}
+
+  async exists(documentId: string): Promise<boolean> {
+    const doc = await this.favoriteModel.findById(documentId).exec();
+    return doc !== null;
+  }
 
   public async addToFavorites(userId: string, offerId: string): Promise<void> {
     const existingFavorite = await this.favoriteModel.findOne({ userId, offerId }).exec();

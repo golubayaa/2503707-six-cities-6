@@ -1,6 +1,6 @@
 export type User = {
   email: string;
-  avatarPath?: string | undefined;
+  avatar?: string | undefined;
   name: string;
   type: 'ordinary' | 'pro';
 }
