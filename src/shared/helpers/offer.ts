@@ -9,17 +9,16 @@ export function createOffer(offerData: string): Offer {
     type,
     price,
     categories,
-    firstname,
-    lastname,
+    name,
     email,
     avatarPath
   ] = offerData.replace('\n', '').split('\t');
 
   const user = {
     email,
-    firstname,
-    lastname,
-    avatarPath
+    name,
+    avatarPath,
+    type: type as 'ordinary' | 'pro',
   };
 
   return {

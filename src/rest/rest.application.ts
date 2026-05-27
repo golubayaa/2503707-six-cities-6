@@ -6,6 +6,7 @@ import { Component } from '../shared/types/index.js';
 import { DatabaseClient } from '../shared/libs/database-client/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
 import { AppExceptionFilter, ExceptionFilter } from '../shared/libs/filters/index.js';
+import { CommentController, OfferController, UserController } from '../shared/controllers/index.js';
 
 @injectable()
 export class RestApplication {
@@ -16,9 +17,18 @@ export class RestApplication {
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.Config) private readonly config: Config<RestSchema>,
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
+    @inject(Component.UserController) private readonly userController: UserController,
+    @inject(Component.OfferController) private readonly offerController: OfferController,
+    @inject(Component.OfferController) private readonly commentController: CommentController,
   ) {
     this.expressApp = express();
     this.exceptionFilter = new AppExceptionFilter(this.logger);
+  }
+
+  private _registerControllers() {
+    this.expressApp.use('/users', this.userController.router);
+    this.expressApp.use('/offers', this.offerController.router);
+    this.expressApp.use('/comments', this.commentController.router);
   }
 
   private async _initDb() {
@@ -61,6 +71,8 @@ export class RestApplication {
 
     this.logger.info('Registering middleware…');
     this._registerMiddleware();
+
+    this._registerControllers();
 
     this.logger.info('Init database…');
     await this._initDb();

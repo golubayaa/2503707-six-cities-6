@@ -1,7 +1,21 @@
-import { Response } from 'express';
+import { Response, Router } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import { Route } from './controller.interface.js';
 
 export abstract class BaseController {
+  public router: Router;
+
+  constructor() {
+    this.router = Router();
+  }
+
+  protected registerRoute(route: Route) {
+    const middlewares = route.middlewares?.map((mw) =>
+      mw.execute.bind(mw)
+    ) ?? [];
+    (this.router as any)[route.method](route.path, ...middlewares, route.handler);
+  }
+
   protected sendOk(res: Response, data: unknown): void {
     res.status(StatusCodes.OK).json(data);
   }

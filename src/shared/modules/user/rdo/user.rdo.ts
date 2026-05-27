@@ -1,6 +1,15 @@
+import { Expose } from 'class-transformer';
+
 export class UserRdo {
-  public name: string;
-  public email: string;
-  public avatarPath?: string;
-  public type: 'ordinary' | 'pro';
+  @Expose()
+  name!: string;
+
+  @Expose()
+  email!: string;
+
+  @Expose()
+  avatarPath?: string;
+
+  @Expose()
+  type!: 'ordinary' | 'pro';
 }

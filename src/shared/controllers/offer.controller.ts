@@ -3,6 +3,10 @@ import { injectable } from 'inversify';
 import { BaseController, Controller } from './index.js';
 import asyncHandler from 'express-async-handler';
 import { OfferEntity } from '../modules/offer/index.js';
+import { ValidateObjectIdMiddleware } from '../middlewares/index.js';
+import { ValidateDtoMiddleware } from '../middlewares/validate-dto-middleware.dto.js';
+import { CreateOfferDto } from '../modules/offer/dto/create-offer.dto.js';
+import { UpdateOfferDto } from '../modules/offer/dto/update-offer.dto.js';
 
 @injectable()
 export class OfferController extends BaseController implements Controller {
@@ -15,53 +19,82 @@ export class OfferController extends BaseController implements Controller {
   }
 
   private _registerRoutes(): void {
-    this.router.get(
-      '/',
-      asyncHandler((req: Request, res: Response) => this.getOffers(req, res))
-    );
+    const validateObjectId = new ValidateObjectIdMiddleware('offerId');
+    const validateCreateOfferDto = new ValidateDtoMiddleware(CreateOfferDto);
+    const validateUpdateOfferDto = new ValidateDtoMiddleware(UpdateOfferDto);
 
-    this.router.post(
-      '/',
-      asyncHandler((req: Request, res: Response) => this.createOffer(req, res))
-    );
+    // GET /offers
+    this.registerRoute({
+      path: '/',
+      method: 'get',
+      handler: (req, res) => this.index(req, res),
+    });
 
-    this.router.get(
-      '/premium/:city',
-      asyncHandler((req: Request, res: Response) => this.getPremiumOffers(req, res))
-    );
+    // POST /offers
+    this.registerRoute({
+      path: '/',
+      method: 'post',
+      handler: (req, res) => this.create(req, res),
+      middlewares: [validateCreateOfferDto],
+    });
 
-    this.router.get(
-      '/favorite',
-      asyncHandler((req: Request, res: Response) => this.getFavoriteOffers(req, res))
-    );
+    // GET /offers/premium/:city
+    this.registerRoute({
+      path: '/premium/:city',
+      method: 'get',
+      handler: (req, res) => this.getPremiumOffers(req, res),
+    });
 
-    this.router.post(
-      '/favorite/:offerId',
-      asyncHandler((req: Request, res: Response) => this.addToFavorite(req, res))
-    );
+    // GET /offers/favorite
+    this.registerRoute({
+      path: '/favorite',
+      method: 'get',
+      handler: (req, res) => this.getFavoriteOffers(req, res),
+    });
 
-    this.router.delete(
-      '/favorite/:offerId',
-      asyncHandler((req: Request, res: Response) => this.removeFromFavorite(req, res))
-    );
+    // POST /offers/favorite/:offerId
+    this.registerRoute({
+      path: '/favorite/:offerId',
+      method: 'post',
+      handler: (req, res) => this.addToFavorite(req, res),
+      middlewares: [validateObjectId],
+    });
 
-    this.router.get(
-      '/:offerId',
-      asyncHandler((req: Request, res: Response) => this.getOffer(req, res))
-    );
+    // DELETE /offers/favorite/:offerId
+    this.registerRoute({
+      path: '/favorite/:offerId',
+      method: 'delete',
+      handler: (req, res) => this.removeFromFavorite(req, res),
+      middlewares: [validateObjectId],
+    });
 
-    this.router.put(
-      '/:offerId',
-      asyncHandler((req: Request, res: Response) => this.updateOffer(req, res))
-    );
+    // GET /offers/:offerId
+    this.registerRoute({
+      path: '/:offerId',
+      method: 'get',
+      handler: (req, res) => this.show(req, res),
+      middlewares: [validateObjectId],
+    });
 
-    this.router.delete(
-      '/:offerId',
-      asyncHandler((req: Request, res: Response) => this.deleteOffer(req, res))
-    );
+    // PUT /offers/:offerId
+    this.registerRoute({
+      path: '/:offerId',
+      method: 'put',
+      handler: (req, res) => this.update(req, res),
+      middlewares: [validateObjectId, validateUpdateOfferDto],
+    });
+
+    // DELETE /offers/:offerId
+    this.registerRoute({
+      path: '/:offerId',
+      method: 'delete',
+      handler: (req, res) => this.delete(req, res),
+      middlewares: [validateObjectId],
+    });
   }
 
-  public getOffers(req: Request, res: Response): void {
+
+  public index(req: Request, res: Response): void {
     const limit = req.query.limit ? Number(req.query.limit) : 60;
 
     // Mock response
@@ -99,7 +132,7 @@ export class OfferController extends BaseController implements Controller {
     this.sendOk(res, offers);
   }
 
-  public createOffer(req: Request, res: Response): void {
+  public create(req: Request, res: Response): void {
     const offerData = req.body;
 
     // Mock response
@@ -120,7 +153,7 @@ export class OfferController extends BaseController implements Controller {
     this.sendCreated(res, newOffer);
   }
 
-  public getOffer(req: Request, res: Response): void {
+  public show(req: Request, res: Response): void {
     const { offerId } = req.params;
 
     // Mock response
@@ -156,7 +189,7 @@ export class OfferController extends BaseController implements Controller {
     this.sendOk(res, offer);
   }
 
-  public updateOffer(req: Request, res: Response): void {
+  public update(req: Request, res: Response): void {
     const { offerId } = req.params;
     const updateData = req.body;
 
@@ -178,7 +211,7 @@ export class OfferController extends BaseController implements Controller {
     this.sendOk(res, updatedOffer);
   }
 
-  public deleteOffer(req: Request, res: Response): void {
+  public delete(req: Request, res: Response): void {
     // Mock response
     this.sendNoContent(res);
   }
