@@ -1,16 +1,19 @@
 import { Router, Request, Response } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { BaseController, Controller } from './index.js';
 import asyncHandler from 'express-async-handler';
-import { ValidateObjectIdMiddleware } from '../middlewares/validate-objectid.middleware.js';
-import { ValidateDtoMiddleware } from '../middlewares/validate-dto-middleware.dto.js';
+import { ValidateObjectIdMiddleware, ValidateDtoMiddleware, DocumentExistsMiddleware } from '../middlewares/index.js';
 import { CreateCommentDto } from '../modules/comment/dto/create-comment.dto.js';
+import { Component } from '../types/index.js';
+import { OfferService } from '../modules/offer/index.js';
 
 @injectable()
 export class CommentController extends BaseController implements Controller {
   public router: Router;
 
-  constructor() {
+  constructor(
+    @inject(Component.OfferService) private readonly offerService: OfferService
+  ) {
     super();
     this.router = Router();
     this._registerRoutes();
@@ -19,6 +22,7 @@ export class CommentController extends BaseController implements Controller {
   private _registerRoutes(): void {
     const validateObjectId = new ValidateObjectIdMiddleware('offerId');
     const validateCreateCommentDto = new ValidateDtoMiddleware(CreateCommentDto);
+    const checkOfferExists = new DocumentExistsMiddleware('offerId', this.offerService);
 
     this.registerRoute({
       path: '/offers/:offerId/comments',

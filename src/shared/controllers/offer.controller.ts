@@ -1,18 +1,20 @@
 import { Router, Request, Response } from 'express';
-import { injectable } from 'inversify';
+import { inject, injectable } from 'inversify';
 import { BaseController, Controller } from './index.js';
 import asyncHandler from 'express-async-handler';
-import { OfferEntity } from '../modules/offer/index.js';
-import { ValidateObjectIdMiddleware } from '../middlewares/index.js';
-import { ValidateDtoMiddleware } from '../middlewares/validate-dto-middleware.dto.js';
+import { OfferEntity, OfferService } from '../modules/offer/index.js';
+import { DocumentExistsMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../middlewares/index.js';
 import { CreateOfferDto } from '../modules/offer/dto/create-offer.dto.js';
 import { UpdateOfferDto } from '../modules/offer/dto/update-offer.dto.js';
+import { Component } from '../types/index.js';
 
 @injectable()
 export class OfferController extends BaseController implements Controller {
   public router: Router;
 
-  constructor() {
+  constructor(
+    @inject(Component.OfferService) private readonly offerService: OfferService
+  ) {
     super();
     this.router = Router();
     this._registerRoutes();
@@ -22,6 +24,7 @@ export class OfferController extends BaseController implements Controller {
     const validateObjectId = new ValidateObjectIdMiddleware('offerId');
     const validateCreateOfferDto = new ValidateDtoMiddleware(CreateOfferDto);
     const validateUpdateOfferDto = new ValidateDtoMiddleware(UpdateOfferDto);
+    const checkOfferExists = new DocumentExistsMiddleware('offerId', this.offerService);
 
     // GET /offers
     this.registerRoute({
@@ -57,7 +60,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/favorite/:offerId',
       method: 'post',
       handler: (req, res) => this.addToFavorite(req, res),
-      middlewares: [validateObjectId],
+      middlewares: [validateObjectId, checkOfferExists],
     });
 
     // DELETE /offers/favorite/:offerId
@@ -65,7 +68,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/favorite/:offerId',
       method: 'delete',
       handler: (req, res) => this.removeFromFavorite(req, res),
-      middlewares: [validateObjectId],
+      middlewares: [validateObjectId, checkOfferExists],
     });
 
     // GET /offers/:offerId
@@ -73,7 +76,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/:offerId',
       method: 'get',
       handler: (req, res) => this.show(req, res),
-      middlewares: [validateObjectId],
+      middlewares: [validateObjectId, checkOfferExists],
     });
 
     // PUT /offers/:offerId
@@ -81,7 +84,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/:offerId',
       method: 'put',
       handler: (req, res) => this.update(req, res),
-      middlewares: [validateObjectId, validateUpdateOfferDto],
+      middlewares: [validateObjectId, validateUpdateOfferDto, checkOfferExists],
     });
 
     // DELETE /offers/:offerId
@@ -89,7 +92,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/:offerId',
       method: 'delete',
       handler: (req, res) => this.delete(req, res),
-      middlewares: [validateObjectId],
+      middlewares: [validateObjectId, checkOfferExists],
     });
   }
 
@@ -97,7 +100,6 @@ export class OfferController extends BaseController implements Controller {
   public index(req: Request, res: Response): void {
     const limit = req.query.limit ? Number(req.query.limit) : 60;
 
-    // Mock response
     const offers = [
       {
         id: '1',
@@ -135,7 +137,6 @@ export class OfferController extends BaseController implements Controller {
   public create(req: Request, res: Response): void {
     const offerData = req.body;
 
-    // Mock response
     const newOffer = {
       id: '2',
       ...offerData,
@@ -156,7 +157,6 @@ export class OfferController extends BaseController implements Controller {
   public show(req: Request, res: Response): void {
     const { offerId } = req.params;
 
-    // Mock response
     const offer = {
       id: offerId,
       title: 'Cozy apartment',

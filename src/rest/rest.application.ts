@@ -1,5 +1,6 @@
 import express, { Express, Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
+import { join, resolve } from 'node:path';
 import { Logger } from '../shared/libs/logger/index.js';
 import { Config, RestSchema } from '../shared/libs/config/index.js';
 import { Component } from '../shared/types/index.js';
@@ -12,6 +13,7 @@ import { CommentController, OfferController, UserController } from '../shared/co
 export class RestApplication {
   private expressApp: Express;
   private exceptionFilter: ExceptionFilter;
+  private uploadDir: string;
 
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
@@ -19,10 +21,31 @@ export class RestApplication {
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
     @inject(Component.UserController) private readonly userController: UserController,
     @inject(Component.OfferController) private readonly offerController: OfferController,
-    @inject(Component.OfferController) private readonly commentController: CommentController,
+    @inject(Component.CommentController) private readonly commentController: CommentController,
   ) {
     this.expressApp = express();
     this.exceptionFilter = new AppExceptionFilter(this.logger);
+
+    this.uploadDir = resolve(this.config.get('UPLOAD_PATH'));
+  }
+
+  private _registerStaticFiles(): void {
+    this.expressApp.use(
+      '/static',
+      express.static(this.uploadDir, {
+        dotfiles: 'ignore',
+        etag: true,
+        index: false,
+        maxAge: '1d',
+        setHeaders: (res, path) => {
+          // 🔥 Отдельные правила для изображений
+          if (/\.(jpeg|jpg|png|webp|gif)$/i.test(path)) {
+            res.setHeader('Cache-Control', 'public, max-age=31536000');
+          }
+        },
+      })
+    );
+    this.logger.info(`Static files served from: ${this.uploadDir} at /static`);
   }
 
   private _registerControllers() {
@@ -62,21 +85,22 @@ export class RestApplication {
 
     this.expressApp.listen(port, () => {
       this.logger.info(`Server started on port ${port}`);
+      this.logger.info(`Static files: http://localhost:${port}/static`);
     });
   }
 
   public async init() {
-    this.logger.info('Application initialization');
     this.logger.info(`Get value from env $PORT: ${this.config.get('PORT')}`);
 
     this.logger.info('Registering middleware…');
     this._registerMiddleware();
 
+    this._registerStaticFiles();
+
     this._registerControllers();
 
     this.logger.info('Init database…');
     await this._initDb();
-    this.logger.info('Init database completed');
 
     this.logger.info('Registering exception filters…');
     this._registerExceptionFilters();

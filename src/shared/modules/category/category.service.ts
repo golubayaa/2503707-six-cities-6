@@ -6,13 +6,18 @@ import { DocumentType, types } from '@typegoose/typegoose';
 import { CategoryEntity } from './category.entity.js';
 import { CreateCategoryDto } from './dto/create-category.dto.js';
 import { MAX_CATEGORIES_COUNT } from './category.constant.js';
+import { DocumentExistsService } from '../../middlewares/document-exists.middleware.js';
 
 @injectable()
-export class DefaultCategoryService implements CategoryService {
+export class DefaultCategoryService implements CategoryService, DocumentExistsService {
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.CategoryModel) private readonly categoryModel: types.ModelType<CategoryEntity>
   ) {}
+
+  public async exists(documentId: string): Promise<boolean> {
+    return (await this.categoryModel.exists({ _id: documentId })) !== null;
+  }
 
   public async create(dto: CreateCategoryDto): Promise<DocumentType<CategoryEntity>> {
     const result = await this.categoryModel.create(dto);
