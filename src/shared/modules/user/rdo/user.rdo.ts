@@ -1,7 +1,6 @@
-export class CreateUserDto {
+export class UserRdo {
   public name: string;
   public email: string;
   public avatarPath?: string;
   public type: 'ordinary' | 'pro';
-  public password: string;
 }
