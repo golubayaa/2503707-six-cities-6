@@ -41,7 +41,7 @@ export class DefaultAuthService implements AuthService {
 
   public async logout(): Promise<void> {
     // В реальном приложении здесь может быть добавление токена в черный список
-    this.logger.info(`User with token logged out`);
+    this.logger.info('User with token logged out');
   }
 
   public async getCurrentUser(token: string): Promise<DocumentType<UserEntity> | null> {

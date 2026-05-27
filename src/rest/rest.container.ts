@@ -4,7 +4,7 @@ import { Component } from '../shared/types/index.js';
 import { Logger, PinoLogger } from '../shared/libs/logger/index.js';
 import { Config, RestConfig, RestSchema } from '../shared/libs/config/index.js';
 import { DatabaseClient, MongoDatabaseClient } from '../shared/libs/database-client/index.js';
-import { CommentController, UserController, OfferController } from '../shared/controllers/index.js'
+import { CommentController, UserController, OfferController } from '../shared/controllers/index.js';
 
 export function createRestApplicationContainer() {
   const restApplicationContainer = new Container();

@@ -13,7 +13,7 @@ export abstract class BaseController {
     const middlewares = route.middlewares?.map((mw) =>
       mw.execute.bind(mw)
     ) ?? [];
-    (this.router as any)[route.method](route.path, ...middlewares, route.handler);
+    this.router[route.method](route.path, ...middlewares, route.handler);
   }
 
   protected sendOk(res: Response, data: unknown): void {

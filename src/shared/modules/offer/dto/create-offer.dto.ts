@@ -4,78 +4,79 @@ import {
 import { Type } from 'class-transformer';
 import { OfferType } from '../../../types/index.js';
 
+export class LocationDto {
+  @IsNumber()
+    latitude!: number;
+
+  @IsNumber()
+    longitude!: number;
+}
+
 export class CreateOfferDto {
   @IsString()
   @Length(10, 100)
-  title!: string;
+    title!: string;
 
   @IsString()
   @Length(20, 1024)
-  description!: string;
+    description!: string;
 
   @IsDateString()
-  postDate!: string;
+    postDate!: string;
 
   @IsString()
-  city!: string;
+    city!: string;
 
   @IsString()
-  previewImage!: string;
+    previewImage!: string;
 
   @IsArray()
   @ArrayMinSize(6)
   @ArrayMaxSize(6)
   @IsString({ each: true })
-  images!: string[];
+    images!: string[];
 
   @IsBoolean()
-  isPremium!: boolean;
+    isPremium!: boolean;
 
   @IsBoolean()
-  isFavorite!: boolean;
+    isFavorite!: boolean;
 
   @IsNumber()
   @Min(1)
   @Max(5)
-  rating!: number;
+    rating!: number;
 
   @IsEnum(OfferType)
-  type!: OfferType;
+    type!: OfferType;
 
   @IsInt()
   @Min(1)
   @Max(8)
-  rooms!: number;
+    rooms!: number;
 
   @IsInt()
   @Min(1)
   @Max(10)
-  guests!: number;
+    guests!: number;
 
   @IsInt()
   @Min(100)
   @Max(100000)
-  price!: number;
+    price!: number;
 
   @IsArray()
   @IsString({ each: true })
-  goods!: string[];
+    goods!: string[];
 
   @IsMongoId()
-  authorId!: string;
+    authorId!: string;
 
   @IsArray()
   @IsString({ each: true })
-  categories!: string[];
+    categories!: string[];
 
   @ValidateNested()
   @Type(() => LocationDto)
-  location!: LocationDto;
-}
-
-export class LocationDto {
-  @IsNumber()
-  latitude!: number;
-  @IsNumber()
-  longitude!: number;
+    location!: LocationDto;
 }
