@@ -1,3 +1,6 @@
+import { Expose } from 'class-transformer';
+
 export class LoginResponseRdo {
-  public token: string;
+  @Expose()
+    token!: string;
 }

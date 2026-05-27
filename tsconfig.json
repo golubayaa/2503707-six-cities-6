@@ -19,6 +19,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false,
     "types": [
       "node",
     ],

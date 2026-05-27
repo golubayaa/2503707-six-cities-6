@@ -1,3 +1,7 @@
+import { Length, IsString } from 'class-validator';
+
 export class CreateCategoryDto {
-  public name: string;
+  @IsString()
+  @Length(2, 30)
+    name!: string;
 }

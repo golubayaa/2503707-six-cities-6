@@ -33,17 +33,15 @@ export class DefaultAuthService implements AuthService {
   }
 
   public async login(email: string, password: string): Promise<DocumentType<UserEntity> | null> {
-    // В реальном приложении здесь будет проверка учетных данных
-    // Для демонстрации просто ищем пользователя по email
     const user = await this.userService.findByEmail(email);
 
     this.logger.info(`User ${email} logged in successfully`);
     return user;
   }
 
-  public async logout(token: string): Promise<void> {
+  public async logout(): Promise<void> {
     // В реальном приложении здесь может быть добавление токена в черный список
-    this.logger.info(`User with token ${token} logged out`);
+    this.logger.info('User with token logged out');
   }
 
   public async getCurrentUser(token: string): Promise<DocumentType<UserEntity> | null> {

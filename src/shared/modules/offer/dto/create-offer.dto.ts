@@ -1,24 +1,82 @@
+import {
+  IsString, Length, IsDateString, IsEnum, IsBoolean, IsArray, ArrayMinSize, ArrayMaxSize, IsInt, Min, Max, IsNumber, IsOptional, ValidateNested, IsMongoId,
+} from 'class-validator';
+import { Type } from 'class-transformer';
 import { OfferType } from '../../../types/index.js';
 
+export class LocationDto {
+  @IsNumber()
+    latitude!: number;
+
+  @IsNumber()
+    longitude!: number;
+}
+
 export class CreateOfferDto {
-  public title!: string;
-  public description!: string;
-  public postDate!: Date;
-  public city!: string;
-  public previewImage!: string;
-  public images!: string[];
-  public isPremium!: boolean;
-  public isFavorite!: boolean;
-  public rating!: number;
-  public type!: OfferType;
-  public rooms!: number;
-  public guests!: number;
-  public price!: number;
-  public goods!: string[];
-  public authorId!: string;
-  public categories!: string[];
-  public location!: {
-    latitude: number;
-    longitude: number;
-  };
+  @IsString()
+  @Length(10, 100)
+    title!: string;
+
+  @IsString()
+  @Length(20, 1024)
+    description!: string;
+
+  @IsDateString()
+    postDate!: string;
+
+  @IsString()
+    city!: string;
+
+  @IsString()
+    previewImage!: string;
+
+  @IsArray()
+  @ArrayMinSize(6)
+  @ArrayMaxSize(6)
+  @IsString({ each: true })
+    images!: string[];
+
+  @IsBoolean()
+    isPremium!: boolean;
+
+  @IsBoolean()
+    isFavorite!: boolean;
+
+  @IsNumber()
+  @Min(1)
+  @Max(5)
+    rating!: number;
+
+  @IsEnum(OfferType)
+    type!: OfferType;
+
+  @IsInt()
+  @Min(1)
+  @Max(8)
+    rooms!: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(10)
+    guests!: number;
+
+  @IsInt()
+  @Min(100)
+  @Max(100000)
+    price!: number;
+
+  @IsArray()
+  @IsString({ each: true })
+    goods!: string[];
+
+  @IsMongoId()
+    authorId!: string;
+
+  @IsArray()
+  @IsString({ each: true })
+    categories!: string[];
+
+  @ValidateNested()
+  @Type(() => LocationDto)
+    location!: LocationDto;
 }
