@@ -5,6 +5,7 @@ import { Logger, PinoLogger } from '../shared/libs/logger/index.js';
 import { Config, RestConfig, RestSchema } from '../shared/libs/config/index.js';
 import { DatabaseClient, MongoDatabaseClient } from '../shared/libs/database-client/index.js';
 import { CommentController, UserController, OfferController } from '../shared/controllers/index.js';
+import { JwtTokenService } from '../shared/libs/JWT/jwt-token.service.js';
 
 export function createRestApplicationContainer() {
   const restApplicationContainer = new Container();
@@ -16,6 +17,7 @@ export function createRestApplicationContainer() {
   restApplicationContainer.bind<CommentController>(Component.CommentController).to(CommentController).inSingletonScope();
   restApplicationContainer.bind<OfferController>(Component.OfferController).to(OfferController).inSingletonScope();
   restApplicationContainer.bind<UserController>(Component.UserController).to(UserController).inSingletonScope();
+  restApplicationContainer.bind<JwtTokenService>(Component.JwtTokenService).to(JwtTokenService).inSingletonScope();
 
   return restApplicationContainer;
 }

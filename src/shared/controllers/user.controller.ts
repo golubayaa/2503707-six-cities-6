@@ -3,14 +3,14 @@ import { Router, Request, Response } from 'express';
 import { inject, injectable } from 'inversify';
 import { BaseController, Controller } from './index.js';
 import asyncHandler from 'express-async-handler';
-import { ValidateObjectIdMiddleware, ValidateDtoMiddleware, DocumentExistsMiddleware } from '../middlewares/index.js';
+import { ValidateObjectIdMiddleware, ValidateDtoMiddleware, DocumentExistsMiddleware, AuthGuardMiddleware } from '../middlewares/index.js';
 import { CreateUserDto } from '../modules/user/dto/create-user.dto.js';
 import { LoginUserDto } from '../modules/user/dto/login-user.dto.js';
 import { Component } from '../types/index.js';
 import { UserService } from '../modules/user/user-service.interface.js';
 import { Config, RestSchema } from '../libs/config/index.js';
-import { StatusCodes } from 'http-status-codes';
 import { FileUploadMiddleware } from '../middlewares/file-upload.middleware.js';
+import { JwtTokenService } from '../libs/JWT/jwt-token.service.js';
 
 @injectable()
 export class UserController extends BaseController implements Controller {
@@ -19,7 +19,8 @@ export class UserController extends BaseController implements Controller {
 
   constructor(
     @inject(Component.UserService) private readonly userService: UserService,
-    @inject(Component.Config) private readonly config: Config<RestSchema>
+    @inject(Component.Config) private readonly config: Config<RestSchema>,
+    @inject(Component.JwtTokenService) private readonly jwtTokenService: JwtTokenService
   ) {
     super();
     this.router = Router();
@@ -34,6 +35,7 @@ export class UserController extends BaseController implements Controller {
     const validateCreateUserDto = new ValidateDtoMiddleware(CreateUserDto);
     const validateLoginUserDto = new ValidateDtoMiddleware(LoginUserDto);
     const checkUserExists = new DocumentExistsMiddleware('userId', this.userService);
+    const authGuard = new AuthGuardMiddleware(this.jwtTokenService);
 
     this.registerRoute({
       path: '/',
@@ -53,14 +55,14 @@ export class UserController extends BaseController implements Controller {
       path: '/logout',
       method: 'post',
       handler: asyncHandler((req, res) => this.logout(req, res)),
-      middlewares: [validateObjectId, checkUserExists],
+      middlewares: [validateObjectId, authGuard, checkUserExists],
     });
 
     this.registerRoute({
       path: '/profile',
       method: 'get',
       handler: asyncHandler((req, res) => this.show(req, res)),
-      middlewares: [validateObjectId, checkUserExists],
+      middlewares: [validateObjectId, authGuard, checkUserExists],
     });
 
     this.registerRoute({
@@ -70,6 +72,7 @@ export class UserController extends BaseController implements Controller {
       middlewares: [
         validateObjectId,
         checkUserExists,
+        authGuard,
         this.avatarUpload,
       ],
     });
