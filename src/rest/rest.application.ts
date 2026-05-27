@@ -1,17 +1,25 @@
+import express, { Express, Request, Response, NextFunction } from 'express';
 import { inject, injectable } from 'inversify';
 import { Logger } from '../shared/libs/logger/index.js';
 import { Config, RestSchema } from '../shared/libs/config/index.js';
 import { Component } from '../shared/types/index.js';
 import { DatabaseClient } from '../shared/libs/database-client/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
+import { AppExceptionFilter, ExceptionFilter } from '../shared/libs/filters/index.js';
 
 @injectable()
 export class RestApplication {
+  private expressApp: Express;
+  private exceptionFilter: ExceptionFilter;
+
   constructor(
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.Config) private readonly config: Config<RestSchema>,
     @inject(Component.DatabaseClient) private readonly databaseClient: DatabaseClient,
-  ) {}
+  ) {
+    this.expressApp = express();
+    this.exceptionFilter = new AppExceptionFilter(this.logger);
+  }
 
   private async _initDb() {
     const mongoUri = getMongoURI(
@@ -25,12 +33,43 @@ export class RestApplication {
     return this.databaseClient.connect(mongoUri);
   }
 
+  private _registerMiddleware() {
+    this.expressApp.use(express.json());
+    this.logger.info('Middleware registered: express.json()');
+  }
+
+  private _registerExceptionFilters() {
+    this.expressApp.use(
+      (error: Error, req: Request, res: Response, next: NextFunction) => {
+        this.exceptionFilter.catch(error, req, res, next);
+      }
+    );
+    this.logger.info('Exception filter registered');
+  }
+
+  private async _startServer() {
+    const port = this.config.get('PORT');
+
+    this.expressApp.listen(port, () => {
+      this.logger.info(`Server started on port ${port}`);
+    });
+  }
+
   public async init() {
     this.logger.info('Application initialization');
     this.logger.info(`Get value from env $PORT: ${this.config.get('PORT')}`);
 
+    this.logger.info('Registering middleware…');
+    this._registerMiddleware();
+
     this.logger.info('Init database…');
     await this._initDb();
     this.logger.info('Init database completed');
+
+    this.logger.info('Registering exception filters…');
+    this._registerExceptionFilters();
+
+    this.logger.info('Starting Express server…');
+    await this._startServer();
   }
 }
