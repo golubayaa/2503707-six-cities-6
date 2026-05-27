@@ -8,6 +8,7 @@ import { DatabaseClient } from '../shared/libs/database-client/index.js';
 import { getMongoURI } from '../shared/helpers/index.js';
 import { AppExceptionFilter, ExceptionFilter } from '../shared/libs/filters/index.js';
 import { CommentController, OfferController, UserController } from '../shared/controllers/index.js';
+import cors from 'cors';
 
 @injectable()
 export class RestApplication {
@@ -38,7 +39,6 @@ export class RestApplication {
         index: false,
         maxAge: '1d',
         setHeaders: (res, path) => {
-          // 🔥 Отдельные правила для изображений
           if (/\.(jpeg|jpg|png|webp|gif)$/i.test(path)) {
             res.setHeader('Cache-Control', 'public, max-age=31536000');
           }
@@ -67,6 +67,7 @@ export class RestApplication {
   }
 
   private _registerMiddleware() {
+    this.expressApp.use(cors());
     this.expressApp.use(express.json());
     this.logger.info('Middleware registered: express.json()');
   }

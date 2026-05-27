@@ -3,17 +3,19 @@ import { inject, injectable } from 'inversify';
 import { BaseController, Controller } from './index.js';
 import asyncHandler from 'express-async-handler';
 import { OfferEntity, OfferService } from '../modules/offer/index.js';
-import { DocumentExistsMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../middlewares/index.js';
+import { AuthGuardMiddleware, DocumentExistsMiddleware, ValidateDtoMiddleware, ValidateObjectIdMiddleware } from '../middlewares/index.js';
 import { CreateOfferDto } from '../modules/offer/dto/create-offer.dto.js';
 import { UpdateOfferDto } from '../modules/offer/dto/update-offer.dto.js';
 import { Component } from '../types/index.js';
+import { JwtTokenService } from '../libs/JWT/jwt-token.service.js';
 
 @injectable()
 export class OfferController extends BaseController implements Controller {
   public router: Router;
 
   constructor(
-    @inject(Component.OfferService) private readonly offerService: OfferService
+    @inject(Component.OfferService) private readonly offerService: OfferService,
+    @inject(Component.JwtTokenService) private readonly jwtTokenService: JwtTokenService
   ) {
     super();
     this.router = Router();
@@ -25,6 +27,7 @@ export class OfferController extends BaseController implements Controller {
     const validateCreateOfferDto = new ValidateDtoMiddleware(CreateOfferDto);
     const validateUpdateOfferDto = new ValidateDtoMiddleware(UpdateOfferDto);
     const checkOfferExists = new DocumentExistsMiddleware('offerId', this.offerService);
+    const authGuard = new AuthGuardMiddleware(this.jwtTokenService);
 
     // GET /offers
     this.registerRoute({
@@ -53,6 +56,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/favorite',
       method: 'get',
       handler: (req, res) => this.getFavoriteOffers(req, res),
+      middlewares: [authGuard]
     });
 
     // POST /offers/favorite/:offerId
@@ -60,7 +64,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/favorite/:offerId',
       method: 'post',
       handler: (req, res) => this.addToFavorite(req, res),
-      middlewares: [validateObjectId, checkOfferExists],
+      middlewares: [validateObjectId, authGuard, checkOfferExists],
     });
 
     // DELETE /offers/favorite/:offerId
@@ -68,7 +72,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/favorite/:offerId',
       method: 'delete',
       handler: (req, res) => this.removeFromFavorite(req, res),
-      middlewares: [validateObjectId, checkOfferExists],
+      middlewares: [validateObjectId, authGuard, checkOfferExists],
     });
 
     // GET /offers/:offerId
@@ -84,7 +88,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/:offerId',
       method: 'put',
       handler: (req, res) => this.update(req, res),
-      middlewares: [validateObjectId, validateUpdateOfferDto, checkOfferExists],
+      middlewares: [validateObjectId, validateUpdateOfferDto, authGuard, checkOfferExists],
     });
 
     // DELETE /offers/:offerId
@@ -92,7 +96,7 @@ export class OfferController extends BaseController implements Controller {
       path: '/:offerId',
       method: 'delete',
       handler: (req, res) => this.delete(req, res),
-      middlewares: [validateObjectId, checkOfferExists],
+      middlewares: [validateObjectId, authGuard, checkOfferExists],
     });
   }
 
