@@ -6,11 +6,21 @@ export class AuthGuardMiddleware {
 
   public execute = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const cookieToken = (req as any).cookies?.token as string | undefined;
+      const cookieToken = req.cookies?.token as string | undefined;
       const authHeader = req.headers.authorization;
       const tokenHeader = req.headers['x-token'];
 
-      const token = cookieToken ?? (authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : typeof tokenHeader === 'string' ? tokenHeader : undefined);
+      let token: string | undefined;
+
+      if (cookieToken) {
+        token = cookieToken;
+      } else if (authHeader?.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      } else if (typeof tokenHeader === 'string') {
+        token = tokenHeader;
+      } else {
+        token = undefined;
+      }
 
       if (!token) {
         res.status(StatusCodes.UNAUTHORIZED).json({ message: 'Missing or invalid authorization token' });

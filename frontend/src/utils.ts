@@ -18,7 +18,7 @@ export class Token {
   static get() {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${this._name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift() ?? '';
+    if (parts.length === 2) {return parts.pop()?.split(';').shift() ?? '';}
     return '';
   }
 

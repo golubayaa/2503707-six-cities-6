@@ -14,6 +14,7 @@ export class DefaultUserService implements UserService, DocumentExistsService {
     @inject(Component.Logger) private readonly logger: Logger,
     @inject(Component.UserModel) private readonly userModel: types.ModelType<UserEntity>
   ) {}
+
   public async findById(userId: string): Promise<DocumentType<UserEntity> | null> {
     return this.userModel.findById(userId).exec();
   }
@@ -46,6 +47,7 @@ export class DefaultUserService implements UserService, DocumentExistsService {
 
     return result;
   }
+
   public async findByEmail(email: string): Promise<DocumentType<UserEntity> | null> {
     return this.userModel.findOne({email});
   }

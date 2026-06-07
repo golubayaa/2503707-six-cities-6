@@ -140,14 +140,14 @@ export class UserController extends BaseController implements Controller {
 
   public async show(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    
+
     if (!userId) {
       this.sendUnauthorized(res, 'Invalid or missing token');
       return;
     }
 
     const user = await this.userService.findById(userId);
-    
+
     if (!user) {
       this.sendNotFound(res, 'User not found');
       return;

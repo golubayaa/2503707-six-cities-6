@@ -31,8 +31,8 @@ export class DefaultAuthService implements AuthService {
       return null;
     }
 
-    const user = await this.userService.findById(payload.userId)
-    
+    const user = await this.userService.findById(payload.userId);
+
     this.logger.info(`Token verification: ${user ? 'success' : 'failed'}`);
     return user;
   }
